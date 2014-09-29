@@ -1,0 +1,20 @@
+{
+	"port": 9000,
+	"namespace": "ns",
+	"database": {
+		"mongodb":{
+			"masters": [],
+			"slaves":[
+				{
+
+				}
+			]
+		}
+	},
+	"query": {
+		"range":{
+			"RANGE_DEFALUT_START": 0,
+			"RANGE_DEFALUT_END": 50
+		}
+	}
+}

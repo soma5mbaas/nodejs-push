@@ -1,0 +1,17 @@
+{
+  "name": "nodejs-push",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "body-parser": "~1.0.0",
+    "cluster": "^0.7.7",
+    "debug": "~0.7.4",
+    "express": "~4.2.0",
+    "uuid": "^1.4.1",
+    "winston": "^0.7.3"
+  }
+}
