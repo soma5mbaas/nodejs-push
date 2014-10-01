@@ -1,5 +1,6 @@
 
-
-exports.ApnsProvider = require('./apns.js');
-exports.GcmProvider = require('./gcm.js');
-exports.MqttProvider = require('./mqtt.js');
+module.exports = {
+	ios: require('./apns.js'),
+	// android: require('./gcm.js'),
+	android: require('./mqtt.js')
+};

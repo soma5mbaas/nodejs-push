@@ -1,9 +1,11 @@
 
 var mongodb = require('../connectors/mongodb');
 var pushConnector = require('../utils/pushConnector');
-var util = require('../utils/util');
+
 var async = require('async');
-var keys = require('../utils/keys');
+
+var keys = require('haru-nodejs-util').keys;
+var isEmptyObject = require('haru-nodejs-util').isEmptyObject;
 
 exports.pushNotification = function(options, data, callback) {
 
@@ -14,21 +16,29 @@ exports.pushNotification = function(options, data, callback) {
 	async.waterfall([
 		function findDeviceTokens(callback) {
 			var key = keys.collectionKey('Installation', options.applicationId);
-			console.log(key);
 
-			var returenDeviceToken = function(error, results) {
-				// var deviceTokens = results.map(function(entity) {
-				// 	return entity.deviceTokens;
-				// });
+			function returenDeviceToken(error, results) {
+				
+				var providers = {
+					android: [],
+					ios: [],
+					mqtt: [],
+				};
 
-				// return callback(error, deviceTokens);
-				console.log(results);
+				results.forEach(function(installation) {
+					var type = installation.deviceType;
+
+					providers[type].push(installation.deviceToken);
+				});
+
+				return callback( error, providers );
 			};
 
-			if( !util.isEmptyObject(options.where) ) {
+
+			if( !isEmptyObject(options.where) ) {
 				// do query 
 				mongodb.find(key, options.where, returenDeviceToken);
-			} else if( !util.isEmptyObject(options.channels) ) {
+			} else if( !isEmptyObject(options.channels) ) {
 				//do query Channels
 				var condition = { channels: {"$in": options.channels} };
 
@@ -36,7 +46,15 @@ exports.pushNotification = function(options, data, callback) {
 			}
 		},
 		function push(deviceTokens, callback) {
+			// deviceTokens.forEach(function(deviceType) {
+			// 	console.log(deviceType +' : ' + deviceTokens[deviceType].length);
+			// });
+			var deviceTypes = Object.keys(deviceTokens);
+			deviceTypes.forEach(function(deviceType) {
+				console.log( deviceTokens[deviceType] );
+			});
 
+			callback(null, null);
 		}
 		], done);
 };

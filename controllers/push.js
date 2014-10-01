@@ -1,9 +1,9 @@
 
 var pushHandelr = require('../handlers/push');
-var util = require('../utils/util');
+var getHeader = require('haru-nodejs-util').common.getHeader;
 
 exports.push = function(req, res) {
-	var options = util.getHeader(req);
+	var options = getHeader(req);
 	var data = req.body.data || {};
 
 	options.channels = req.body.channels || [];
