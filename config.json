@@ -6,7 +6,7 @@
 			"masters": [],
 			"slaves":[
 				{
-
+					"url": "mongodb://localhost:40000/haru"
 				}
 			]
 		}
@@ -15,6 +15,18 @@
 		"range":{
 			"RANGE_DEFALUT_START": 0,
 			"RANGE_DEFALUT_END": 50
+		}
+	},
+	"pushSettings" : {
+		"gcm": {
+
+		},
+		"apns": {
+
+		},
+		"mqtt": {
+			"host": "localhost",
+			"port": 1883
 		}
 	}
 }
