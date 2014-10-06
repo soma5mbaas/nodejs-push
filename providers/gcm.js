@@ -5,8 +5,8 @@ var inherits = require('util').inherits;
 
 module.exports = GcmProvider;
 
-function GcmProvider( sezttings ) {
-	this._initPushConnection(settings);
+function GcmProvider( pushSettings ) {
+	this._initPushConnection(pushSettings.gcm);
 };
 
 inherits(GcmProvider, EventEmitter);
@@ -39,7 +39,7 @@ GcmProvider.prototype.pushNotification = function( notification, deviceToken ) {
 
 		if(error) {
 			console.log('Cannot send message : %s\n', error.stack);
-			self.emit('error', err);
+			self.emit('error', error);
 			return;
 		}
 
