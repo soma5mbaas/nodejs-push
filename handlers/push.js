@@ -1,13 +1,16 @@
 
 var mongodb = require('../connectors/mongodb');
-var pushConnector = require('../utils/pushConnector');
 
 var async = require('async');
 
 var keys = require('haru-nodejs-util').keys;
-var isEmptyObject = require('haru-nodejs-util').isEmptyObject;
+var isEmptyObject = require('haru-nodejs-util').common.isEmptyObject;
 
-exports.pushNotification = function(options, data, callback) {
+var PushManager = require('../utils/pushManager');
+
+var pushManger = new PushManager({});
+
+exports.pushNotification = function(options, notification, callback) {
 
 	var done = function( error, results ) {
 		return callback(error, results);
@@ -18,8 +21,7 @@ exports.pushNotification = function(options, data, callback) {
 			var key = keys.collectionKey('Installation', options.applicationId);
 
 			function returenDeviceToken(error, results) {
-				
-				var providers = {
+				var deviceGroup = {
 					android: [],
 					ios: [],
 					mqtt: [],
@@ -27,31 +29,30 @@ exports.pushNotification = function(options, data, callback) {
 
 				results.forEach(function(installation) {
 					var type = installation.deviceType;
-
-					providers[type].push(installation.deviceToken);
+					deviceGroup[type].push(installation.deviceToken);
 				});
 
-				return callback( error, providers );
+				return callback( error, deviceGroup );
 			};
 
 
 			if( !isEmptyObject(options.where) ) {
-				// do query 
 				mongodb.find(key, options.where, returenDeviceToken);
-			} else if( !isEmptyObject(options.channels) ) {
-				//do query Channels
-				var condition = { channels: {"$in": options.channels} };
 
+			} else if( !isEmptyObject(options.channels) ) {
+				var condition = { channels: {"$in": options.channels} };
 				mongodb.find(key, condition, returenDeviceToken);
+
 			}
 		},
 		function push(deviceTokens, callback) {
-			// deviceTokens.forEach(function(deviceType) {
-			// 	console.log(deviceType +' : ' + deviceTokens[deviceType].length);
-			// });
 			var deviceTypes = Object.keys(deviceTokens);
 			deviceTypes.forEach(function(deviceType) {
-				console.log( deviceTokens[deviceType] );
+				if( deviceTokens[deviceType].length > 0){ 
+					pushManger.notify( options.applicationId, deviceType, notification, deviceTokens[deviceType], function() {
+
+					});
+				}
 			});
 
 			callback(null, null);
