@@ -3,6 +3,7 @@
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
 var NodeCache = require('node-cache');
+var isEmptyObject = require('haru-nodejs-util').common.isEmptyObject;
 var providers = require('../providers');
 
 module.exports = PushManager;
@@ -21,10 +22,29 @@ PushManager.prototype.getProvider = function(appid, deviceType) {
 	var cacheKey = self.providerCacheKey(appid, deviceType);
 	var provider = self.providerCache.get( cacheKey );
 
-	if( !provider ) {
-		provider = self.createProvider(appid, deviceType);
+	// provider가 없으면 새로 만든다.
+	if( isEmptyObject(provider) ) {
+		// var pushSettings = mongodb.fin({}); pushSetting 정보를 DB에서 얻어오도록 수정해야한다.
+		
+		var pushSettings = {
+			apns: {},
+			gcm: { 
+				serverApiKey: 'AIzaSyC9Q1jASJfaM-cBmu-5s1Rq8h-KAZnUInw' 
+			},
+			mqtt: {
+				host: 'localhost',
+				port: 1883
+			}
+		};
 
+		provider = self.createProvider(deviceType, pushSettings);
+		provider.on('error', function(error) {
+
+		});
 		self.providerCache.set( cacheKey, provider );
+
+	} else {
+		provider = provider[cacheKey];
 	}
 
 	return provider;
@@ -36,6 +56,7 @@ PushManager.prototype.providerCacheKey = function( appid, deviceType ) {
 
 PushManager.prototype.createProvider = function( deviceType, pushSettings ) {
 	var ProviderClass = providers[deviceType];
+
 	if( !ProviderClass ) { return console.log('지원하지 않는 타입'); }
 
 	var provider = new ProviderClass( pushSettings );
@@ -43,57 +64,11 @@ PushManager.prototype.createProvider = function( deviceType, pushSettings ) {
 	return provider;
 };
 
-PushManager.prototype.notify = function( installation, notification, callback ) {
-	var self = this;
-	var appid = installation.appid;
-	var deviceType = installation.deviceType;
+PushManager.prototype.notify = function( appid, deviceType, notification, deviceToken, callback ) {
+	var provider = this.getProvider(appid, deviceType);
 
-	var provider = self.getProvider(appid, deviceType);
+	provider.pushNotification(notification, deviceToken);
 
-
+	if( typeof callback === 'function') callback();
 };
 
-
-
-
-
-//test
-var settings = {
-	gcm: {
-		serverApiKey: 'AIzaSyC9Q1jASJfaM-cBmu-5s1Rq8h-KAZnUInw'
-	}
-	apns: {
-
-	}
-	mqtt: {
-
-	},
-	deviceMapping: {
-		ios: 'apns',	
-		android: 'gcm'
-	}
-};
-
-var installation = {
-	appid: 'appid',
-	deviceToken: [],
-	deviceType: 'android'
-};
-
-installation.deviceToken.push('APA91bFNB_T1ZATk-MD2b_e97ZJ5bSzOTVhQoLlpLvfdVHQjIhysTqkAGgGeENTluwr9qICcmligGKDrpx-MJnLTr5xGftnd2Sgv9rxnzgKkwWE-T1Jhd8xzpJUd4vYf49cCyUOty1WYrMSaSe6ZOCMphxX5wuoSnA');
-
-
-var notification = {
-	collapseKey: 'demo',
-	delayWhileIdle: true,
-	timeToLive: 3000,
-	data: {
-		key1: 'message1',
-		msg: 'message2'
-	}
-};
-
-
-
-var pushmanager = new PushManager(settings);
-pushmanager.notify( installation, notification, callback );
