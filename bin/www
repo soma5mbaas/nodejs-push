@@ -23,7 +23,10 @@ global.loge = new Logger( __dirname +'/../logs/exception.log');
 // });
 
 if( cluster.isMaster ) {
-	var processCount = require('os').cpus().length - 2 || 1;
+	var processCount = require('os').cpus().length - 2;
+	if( processCount < 1 ) {
+		processCount = 1;
+	}
 
 	cluster.on('exit',function(worker) {
 		log.info('[%d] worker is exit', worker.process.pid);
