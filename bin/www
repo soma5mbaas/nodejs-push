@@ -18,12 +18,12 @@ global.log  = new Logger( __dirname +'/../logs/debug.log');
 global.loge = new Logger( __dirname +'/../logs/exception.log');
 
 // // Exception
-process.on('uncaughtException', function(error) {
-	loge.error(error);
-});
+// process.on('uncaughtException', function(error) {
+// 	loge.error(error);
+// });
 
 if( cluster.isMaster ) {
-	var processCount = require('os').cpus().length - 2;
+	var processCount = require('os').cpus().length - 2 || 1;
 
 	cluster.on('exit',function(worker) {
 		log.info('[%d] worker is exit', worker.process.pid);
