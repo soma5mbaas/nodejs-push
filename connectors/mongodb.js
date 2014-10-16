@@ -16,9 +16,6 @@ MongoDB.prototype.connect = function() {
 
 	async.timesSeries(slaves.length, function(n, next) {
 		mongodb.connect(slaves[n].url, function(error, connection) {
-			connection.on('open', function() {
-				console.log('open');
-			});
 			next(error, connection);
 		});
 	}, function done(error, connections) {
