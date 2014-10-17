@@ -16,10 +16,10 @@ function PushManager(settings) {
 
 inherits( PushManager, EventEmitter );
 
-PushManager.prototype.getProvider = function(appid, deviceType) {
+PushManager.prototype.getProvider = function(appid, pushType) {
 	var self = this;
 
-	var cacheKey = self.providerCacheKey(appid, deviceType);
+	var cacheKey = self.providerCacheKey(appid, pushType);
 	var provider = self.providerCache.get( cacheKey );
 
 	// provider가 없으면 새로 만든다.
@@ -32,12 +32,12 @@ PushManager.prototype.getProvider = function(appid, deviceType) {
 				serverApiKey: 'AIzaSyC9Q1jASJfaM-cBmu-5s1Rq8h-KAZnUInw' 
 			},
 			mqtt: {
-				host: 'localhost',
-				port: 1883
+				host: 'stage.haru.io',
+				port: 1884
 			}
 		};
 
-		provider = self.createProvider(deviceType, pushSettings);
+		provider = self.createProvider(pushType, pushSettings);
 		provider.on('error', function(error) {
 
 		});

@@ -13,7 +13,7 @@ inherits(MqttProvider, EventEmitter);
 
 MqttProvider.prototype._initPushConnection = function( settings ) {
 	settings.options = settings.options || {};
-	settings.port = settings.port || 1883;
+	settings.port = settings.port || 1884;
 	settings.host = settings.host || 'localhost';
 
 	this.connection = mqtt.createClient( settings.port, settings.host, settings.options );
@@ -22,7 +22,8 @@ MqttProvider.prototype._initPushConnection = function( settings ) {
 MqttProvider.prototype.pushNotification = function( notification, deviceToken ) {
 	var self = this;
 	var connection = this.connection;
-	
+
+
 	var registrationIds = (typeof deviceToken == 'string') ? [deviceToken] : deviceToken;
 	registrationIds.forEach(function(id){
 		connection.publish(id, notification.message);
