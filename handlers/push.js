@@ -46,8 +46,6 @@ exports.pushNotification = function(options, notification, callback) {
 			}
 		},
 		function push(providers, callback) {
-            console.log(providers);
-            
 			var keys = Object.keys(providers);
             keys.forEach(function(pushType) {
 				if( providers[pushType].length > 0){
