@@ -12,7 +12,7 @@
     "cors": "^2.4.2",
     "debug": "~0.7.4",
     "express": "~4.2.0",
-    "haru-nodejs-util": "0.0.5",
+    "haru-nodejs-util": "0.0.19",
     "mongodb": "^1.4.18",
     "mqtt": "^0.3.12",
     "node-cache": "^1.0.2",
