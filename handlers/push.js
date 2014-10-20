@@ -25,12 +25,18 @@ exports.pushNotification = function(options, notification, callback) {
 				var providers = {
 					gcm: [],
 					ios: [],
-					mqtt: [],
+					mqtt: []
 				};
 
 				results.forEach(function(installation) {
 					var type = installation.pushType;
-                    providers[type].push(installation.deviceToken);
+                    if( providers[type] ) {
+                        providers[type].push(installation.deviceToken);
+                    } else if( installation.deviceType === 'android' ) {
+                        providers.gcm.push(installation.deviceToken);
+                    } else if( installation.deviceType === 'ios' ) {
+                        providers.apnspush(installation.deviceToken);
+                    }
 				});
 
 				return callback( error, providers );
