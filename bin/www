@@ -18,9 +18,9 @@ global.log  = new Logger( __dirname +'/../logs/debug.log');
 global.loge = new Logger( __dirname +'/../logs/exception.log');
 
 // // Exception
-// process.on('uncaughtException', function(error) {
-// 	loge.error(error);
-// });
+process.on('uncaughtException', function(error) {
+	loge.error(error.toString());
+});
 
 if( cluster.isMaster ) {
 	var processCount = require('os').cpus().length - 2;
