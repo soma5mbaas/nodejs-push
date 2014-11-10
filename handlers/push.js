@@ -12,10 +12,18 @@ var UsersClass = 'Users';
 
 
 exports.pushNotification = function(options, notification, callback) {
+	var userCollection = keys.collectionKey(UsersClass, options.applicationId);
+	//{ applicationId: 'appid',
+	//	api: { id: 'restid', type: 'rest' },
+	//	timestamp: 1415620106059,
+	//		channels: [],
+	//	where: { installations: {}, users: { password: 'test' } },
+	//	page: { pageSize: 10000, pageNumber: 1 } }
+
     async.waterfall([
         function queryUsers(callback){
 			if( options.where.users ) {
-				store.get('mongodb').find( keys.collectionKey(UsersClass, options.applicationId) , options.where.users, function(error, results) {
+				store.get('mongodb').pagination( userCollection , options.where.users, options.page, function(error, results) {
 					callback(null , results);
 				});
 			} else {

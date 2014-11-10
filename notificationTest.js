@@ -9,9 +9,10 @@ var async = require('async');
 /**
  * Host Info
  * **/
-var host = 'localhost';
+var host = 'stage.haru.io';
 var appId = 'appid';
 var restId = 'restid';
+//var host = 'localhost';
 
 /**
  * Device Data
@@ -35,7 +36,7 @@ async.series([
          * **/
         var installation_body = { deviceToken: deviceToken,deviceType: deviceType, pushType: pushType, channels: channels};
         var installation_options = {
-            url: 'http://'+host+':10400/1/installation',
+            url: 'http://'+host+':10400/1/installations',
             method: 'POST',
             headers: {
                 'Application-Id': appId,
@@ -56,7 +57,7 @@ async.series([
 
         var signup_body = { username: username, password: password, email: email, deviceToken: deviceToken};
         var signup_options = {
-            url: 'http://'+host+':10400/1/signup',
+            url: 'http://'+host+':10400/1/users',
             method: 'POST',
             headers: {
                 'Application-Id': appId,
@@ -74,10 +75,15 @@ async.series([
     /**
      * Wait Notification
      * **/
+
     client.subscribe(deviceToken);
     console.log('[%s] wait notification', deviceToken);
+
     client.on('message', function(topic, message) {
-        console.log(message);
+        console.log('get message : ',message);
+
+        var json = JSON.parse(message);
+        console.log(json.alert);
     });
 });
 

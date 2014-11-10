@@ -19,7 +19,7 @@ global.loge = new Logger( __dirname +'/../logs/exception.log');
 
 // // Exception
 process.on('uncaughtException', function(error) {
-	loge.error(error.toString());
+	loge.error(error.stack);
 });
 
 if( cluster.isMaster ) {
@@ -28,20 +28,16 @@ if( cluster.isMaster ) {
 		processCount = 1;
 	}
 
+
 	cluster.on('exit',function(worker) {
-		log.info('[%d] worker is exit', worker.process.pid);
+		log.error('[%d] worker is exit', worker.process.pid);
+		cluster.fork();
 	});
-	
+
 	for( var i = 0; i < processCount; i++ ) {
 		var worker = cluster.fork();
 	}
 
 } else {
-	var app = require('../app');
-
-	app.set('port', process.env.PORT || config.port);
-	var server = app.listen(app.get('port'), function() {
-		log.info('[%d] Express server listening on port %d', process.pid, server.address().port);
-	});
-
+	require('../worker');
 }
