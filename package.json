@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "amqplib": "^0.3.0",
     "async": "^0.9.0",
     "body-parser": "~1.0.0",
     "cluster": "^0.7.7",
@@ -13,7 +14,7 @@
     "debug": "~0.7.4",
     "domain": "0.0.0",
     "express": "~4.2.0",
-    "haru-nodejs-store": "0.0.29",
+    "haru-nodejs-store": "0.0.31",
     "haru-nodejs-util": "0.0.27",
     "mongodb": "^1.4.18",
     "mqtt": "^0.3.12",
@@ -21,6 +22,7 @@
     "node-gcm": "^0.9.12",
     "request": "^2.45.0",
     "uid2": "0.0.3",
+    "underscore": "^1.7.0",
     "uuid": "^1.4.2",
     "winston": "^0.7.3"
   }
