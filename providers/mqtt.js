@@ -25,8 +25,9 @@ MqttProvider.prototype.pushNotification = function( notification, deviceToken ) 
 
 
 	var registrationIds = (typeof deviceToken == 'string') ? [deviceToken] : deviceToken;
+
 	registrationIds.forEach(function(id){
-		connection.publish(id, notification.message);
+		connection.publish(id, JSON.stringify(notification));
 	});
 };
 
