@@ -13,8 +13,8 @@ inherits(MqttProvider, EventEmitter);
 
 MqttProvider.prototype._initPushConnection = function( settings ) {
 	settings.options = settings.options || {};
-	settings.port = settings.port || 1884;
-	settings.host = settings.host || 'localhost';
+	settings.port = settings.port || 80;
+	settings.host = settings.host || 'push.haru.io';
 
 	this.connection = mqtt.createClient( settings.port, settings.host, settings.options );
 };

@@ -5,6 +5,8 @@ var inherits = require('util').inherits;
 var NodeCache = require('node-cache');
 var isEmptyObject = require('haru-nodejs-util').common.isEmptyObject;
 var providers = require('../providers');
+var config = require('../config');
+
 
 module.exports = PushManager;
 
@@ -31,10 +33,7 @@ PushManager.prototype.getProvider = function(appid, pushType) {
 			gcm: { 
 				serverApiKey: 'AIzaSyC9Q1jASJfaM-cBmu-5s1Rq8h-KAZnUInw' 
 			},
-			mqtt: {
-				host: 'stage.haru.io',
-				port: 1884
-			}
+			mqtt: config.pushSettings.mqtt
 		};
 
 		provider = self.createProvider(pushType, pushSettings);

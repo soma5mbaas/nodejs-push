@@ -35,6 +35,7 @@ function on_connect(err, conn) {
             var body = JSON.parse(msg.content);
             body.options.page = body.page;
 
+
             console.log(" [%s] Received %s : %s",process.pid, body.applicationId, body.notification.message);
             push.pushNotification(body.options, body.notification, function(error, results) {
                 ch.ack(msg);

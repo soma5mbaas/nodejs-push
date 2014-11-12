@@ -1,5 +1,5 @@
 var mqtt = require('mqtt')
-var client = mqtt.createClient(1884, 'stage.haru.io');
+var client = mqtt.createClient(80, 'push.haru.io');
 
 var request = require('request');
 var uid = require('uid2');
@@ -9,7 +9,7 @@ var async = require('async');
 /**
  * Host Info
  * **/
-var host = 'stage.haru.io';
+var host = 'api.haru.io';
 var appId = 'appid';
 var restId = 'restid';
 //var host = 'localhost';
@@ -36,7 +36,7 @@ async.series([
          * **/
         var installation_body = { deviceToken: deviceToken,deviceType: deviceType, pushType: pushType, channels: channels};
         var installation_options = {
-            url: 'http://'+host+':10400/1/installations',
+            url: 'http://'+host+'/1/installations',
             method: 'POST',
             headers: {
                 'Application-Id': appId,
@@ -57,7 +57,7 @@ async.series([
 
         var signup_body = { username: username, password: password, email: email, deviceToken: deviceToken};
         var signup_options = {
-            url: 'http://'+host+':10400/1/users',
+            url: 'http://'+host+'/1/users',
             method: 'POST',
             headers: {
                 'Application-Id': appId,
