@@ -55,7 +55,7 @@ exports.pushNotification = function(options, notification, callback) {
 				var type = installation.pushType;
 
 				if( providers[type] ) {
-					providers[type].push(installation.deviceToken);
+					providers[type].push(options.applicationId+':'+installation.deviceToken);
 				} else if( installation.deviceType === 'android' ) {
 					providers.gcm.push(installation.deviceToken);
 				} else if( installation.deviceType === 'ios' ) {

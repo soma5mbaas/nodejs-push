@@ -65,7 +65,6 @@ PushManager.prototype.createProvider = function( deviceType, pushSettings ) {
 
 PushManager.prototype.notify = function( appid, deviceType, notification, deviceToken, callback ) {
 	var provider = this.getProvider(appid, deviceType);
-
 	provider.pushNotification(notification, deviceToken);
 
 	if( typeof callback === 'function') callback();
