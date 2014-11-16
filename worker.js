@@ -14,13 +14,15 @@ var _ = require('underscore');
 store.connect(config.store);
 
 function bail(err, conn) {
-    console.error(err);
+    log.error('[%s] Process bail : %s', process.pid, err.stack);
     if (conn) conn.close(function() { process.exit(1); });
 }
 
 function on_connect(err, conn) {
     if (err !== null) return bail(err);
-    process.once('SIGINT', function() { conn.close(); });
+    process.once('SIGINT', function() {
+        conn.close();
+    });
 
     var q = 'push';
 
@@ -36,7 +38,7 @@ function on_connect(err, conn) {
             body.options.page = body.page;
 
 
-            console.log(" [%s] Received %s : %s",process.pid, body.options.applicationId, JSON.stringify(body.notification));
+            log.info(" [%s] Received %s : %s , Full Json : %s",process.pid, body.options.applicationId, JSON.stringify(body.notification), JSON.stringify(body));
             push.pushNotification(body.options, body.notification, function(error, results) {
                 ch.ack(msg);
             });
