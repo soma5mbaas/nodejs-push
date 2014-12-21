@@ -4,4 +4,6 @@ config.json
 .idea
 
 logConfig.json
-notificationTest.js
+test/notificationTest.js
+publishtest.js
+test
