@@ -27,14 +27,6 @@ function PushManager(settings) {
 
 inherits( PushManager, EventEmitter );
 
-
-/**
- *
- * Application = {
- * appId: string,
- * providers: []
- * }
- * **/
 PushManager.prototype.getApplication = function (appId, pushType, cb) {
 	var self = this;
 
@@ -113,7 +105,6 @@ PushManager.prototype.notify = function(installation, notification, cb) {
 		pushType,
 		function( error, provider ) {
 			if (error) { return cb(error); }
-
 			provider.pushNotification(notification, deviceToken, appId);
 			cb();
 		}
@@ -126,6 +117,7 @@ function _doQuery(options, callback) {
 
 	async.series([
 		function addUsersCondition(callback){
+			// TODO query users
 			callback(null, []);
 		},
 		function addInstallationsCondtion(callback) {
@@ -146,5 +138,6 @@ function _doQuery(options, callback) {
 };
 
 function _findPushSetting(appId, callback) {
+	// TODO Select Application Push Settings
 	callback(null, {mqtt: {}, apns:{}, gcm: {} });
 };
