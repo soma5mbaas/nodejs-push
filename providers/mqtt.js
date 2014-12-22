@@ -2,35 +2,34 @@ var mqtt = require('mqtt');
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
 
+module.exports = MqttProvider;
 
+function MqttProvider( pushSetting ) {
+	var self = this;
 
-function MqttProvider( pushSettings ) {
-	this._initPushConnection(pushSettings.mqtt);
+	self._initPushConnection(pushSetting);
 };
 
-module.exports = MqttProvider;
 inherits(MqttProvider, EventEmitter);
 
 MqttProvider.prototype._initPushConnection = function( settings ) {
+	var self = this;
 	settings.options = settings.options || {};
 	settings.port = settings.port || 80;
 	settings.host = settings.host || 'push.haru.io';
+	settings.reconnectPeriod = 100;
 
 	this.connection = mqtt.createClient( settings.port, settings.host, settings.options );
+	this.connection.on('error', function(error) {
+		self.emit('error', error);
+	});
 };
 
-MqttProvider.prototype.pushNotification = function( notification, deviceToken ) {
-	var self = this;
+
+MqttProvider.prototype.pushNotification = function( notification, deviceToken, appId ) {
 	var connection = this.connection;
 
-
-	var registrationIds = (typeof deviceToken == 'string') ? [deviceToken] : deviceToken;
-
-	log.info('[%s] Send Push devices : %s', process.pid, JSON.stringify(registrationIds) );
-
-	registrationIds.forEach(function(id){
-		connection.publish(id, JSON.stringify(notification));
-	});
+	connection.publish(  appId+'/'+deviceToken , JSON.stringify(notification) );
 };
 
 MqttProvider.prototype._createMessage = function( notification ) {
