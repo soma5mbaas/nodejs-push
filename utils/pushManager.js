@@ -1,72 +1,151 @@
+var _ = require('underscore');
 
-
+var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
 var NodeCache = require('node-cache');
 var isEmptyObject = require('haru-nodejs-util').common.isEmptyObject;
-var providers = require('../providers');
+var Providers = require('../providers');
 var config = require('../config');
+
+var keys = require('haru-nodejs-util').keys;
+var store = require('haru-nodejs-store');
+
+var InstallationsClass = 'Installations';
+var UsersClass = 'Users';
 
 
 module.exports = PushManager;
 
 function PushManager(settings) {
-	this.settings = settings || {};
 
-	this.providerCache = new NodeCache( { stdTTL: 600, checkperiod: 620 } );
+	this.settings = settings || {};
+	this.ttlInSeconds = this.settings.ttlInSeconds || 0;
+	this.checkPeriodInSeconds = this.settings.checkPeriodInSeconds || 0;
+	this.applicationsCache = new NodeCache({ stdTTL: this.ttlInSeconds, checkperiod: this.checkPeriodInSeconds });
 };
 
 inherits( PushManager, EventEmitter );
 
-PushManager.prototype.getProvider = function(appid, pushType) {
+
+/**
+ *
+ * Application = {
+ * appId: string,
+ * providers: []
+ * }
+ * **/
+PushManager.prototype.getApplication = function (appId, pushType, cb) {
 	var self = this;
 
-	var cacheKey = self.providerCacheKey(appid, pushType);
-	var provider = self.providerCache.get( cacheKey );
-
-	// provider가 없으면 새로 만든다.
-	if( isEmptyObject(provider) ) {
-		// var pushSettings = mongodb.fin({}); pushSetting 정보를 DB에서 얻어오도록 수정해야한다.
-		
-		var pushSettings = {
-			apns: {},
-			gcm: { 
-				serverApiKey: 'AIzaSyC9Q1jASJfaM-cBmu-5s1Rq8h-KAZnUInw' 
-			},
-			mqtt: config.pushSettings.mqtt
-		};
-
-		provider = self.createProvider(pushType, pushSettings);
-		provider.on('error', function(error) {
-
+	var app = self.applicationsCache.get(appId);
+	if( app[appId] && app[appId][pushType] ) {
+		return process.nextTick(function() {
+			cb(null, app[appId][pushType]);
 		});
-		self.providerCache.set( cacheKey, provider );
-
-	} else {
-		provider = provider[cacheKey];
 	}
 
+	_findPushSetting(appId, function(error, pushSettings) {
+		if( error ) { return cb(error, pushSettings); }
+
+		if( !app[appId] ) {
+			app[appId] = {};
+		}
+
+		if( !app[appId][pushType] ) {
+			app[appId][pushType] = self.getProvider(pushType, pushSettings);
+		}
+
+		self.applicationsCache.set(appId, app[appId]);
+
+		cb(error, app[appId][pushType]);
+	});
+};
+
+PushManager.prototype.getProvider = function (pushType, pushSettings) {
+	var self = this;
+	var Provider = Providers[pushType];
+
+	if( !Provider ) { return null; }
+
+	var provider = new Provider(pushSettings[pushType]);
+
+	provider.on('devicesGone', function(deviceTokens) {
+		// TODO deviceGone
+	});
+
+	provider.on('error', function(err) {
+		self.emit('error', err);
+	});
+
 	return provider;
 };
 
-PushManager.prototype.providerCacheKey = function( appid, deviceType ) {
-	return appid + ':' + deviceType;
+PushManager.prototype.notifyByQuery = function(options, notification, cb) {
+	var self = this;
+	_doQuery(options, function(error, installationList) {
+		if( error ) { return cb(error); }
+
+		async.each(
+			installationList,
+			function(installation, next) {
+				installation.applicationId = options.applicationId;
+				self.notify(installation, notification, next);
+			},
+			function done(error) {
+				cb(error);
+			}
+		);
+	});
 };
 
-PushManager.prototype.createProvider = function( deviceType, pushSettings ) {
-	var ProviderClass = providers[deviceType];
 
-	if( !ProviderClass ) { return console.log('지원하지 않는 타입'); }
+PushManager.prototype.notify = function(installation, notification, cb) {
+	if( !(_.isObject(installation) && notification) ) { return cb(new Error('bad arguments'), null);}
 
-	var provider = new ProviderClass( pushSettings );
+	var appId = installation.applicationId;
+	var deviceToken = installation.deviceToken;
+	var pushType = installation.pushType;
 
-	return provider;
+
+	this.getApplication(
+		appId,
+		pushType,
+		function( error, provider ) {
+			if (error) { return cb(error); }
+
+			provider.pushNotification(notification, deviceToken, appId);
+			cb();
+		}
+	);
 };
 
-PushManager.prototype.notify = function( appid, deviceType, notification, deviceToken, callback ) {
-	var provider = this.getProvider(appid, deviceType);
-	provider.pushNotification(notification, deviceToken);
 
-	if( typeof callback === 'function') callback();
+function _doQuery(options, callback) {
+	var condition = {};
+
+	async.series([
+		function addUsersCondition(callback){
+			callback(null, []);
+		},
+		function addInstallationsCondtion(callback) {
+			if( options.where.installations === undefined || _.isEmpty(options.where.installations) ) { callback (null, null); }
+
+			_.extend(condition, options.where.installations);
+
+			callback(null, null);
+		},
+		function doQuery(callback) {
+			//store.get('mongodb').find( keys.collectionKey(InstallationsClass, options.applicationId), condition, callback );
+			callback(null, [{deviceToken: '4cbbabb2-9582-4985-8a7a-bb6fdf388adc', deviceType: 'android', pushType:'mqtt'}]);
+		}
+	], function done(error, results) {
+		// TODO error handling
+		if( error ) { return callback(error, results); }
+		callback( error, results[2] );
+	});
 };
 
+function _findPushSetting(appId, callback) {
+	callback(null, {mqtt: {}, apns:{}, gcm: {} });
+};
