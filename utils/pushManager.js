@@ -136,8 +136,7 @@ function _doQuery(options, callback) {
 			callback(null, null);
 		},
 		function doQuery(callback) {
-			//store.get('mongodb').find( keys.collectionKey(InstallationsClass, options.applicationId), condition, callback );
-			callback(null, [{deviceToken: '4cbbabb2-9582-4985-8a7a-bb6fdf388adc', deviceType: 'android', pushType:'mqtt'}]);
+			store.get('mongodb').find( keys.collectionKey(InstallationsClass, options.applicationId), condition, callback );
 		}
 	], function done(error, results) {
 		// TODO error handling
