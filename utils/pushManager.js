@@ -77,6 +77,7 @@ PushManager.prototype.notifyByQuery = function(options, notification, cb) {
 	var self = this;
 	_doQuery(options, function(error, installationList) {
 		if( error ) { return cb(error); }
+		if( installationList === null || installationList.length === 0 ) { return cb(error); }
 
 		async.each(
 			installationList,
@@ -104,7 +105,9 @@ PushManager.prototype.notify = function(installation, notification, cb) {
 		appId,
 		pushType,
 		function( error, provider ) {
-			if (error) { return cb(error); }
+			if ( error ) { return cb(error); }
+			if ( !provider ) { return cb(error); }
+
 			provider.pushNotification(notification, deviceToken, appId);
 			cb();
 		}
@@ -117,8 +120,19 @@ function _doQuery(options, callback) {
 
 	async.series([
 		function addUsersCondition(callback){
-			// TODO query users
-			callback(null, []);
+			if( !options.where.users ) { return callback( null, null ); }
+
+			store.get('mongodb').find(keys.collectionKey(UsersClass, options.applicationId), options.where.users, function(error, users) {
+				if( error ) { return callback(error, users); }
+				if( users.length === 0 ) { return callback(error, []); }
+
+				var idList = _.map(users, function(user) {
+					return user._id;
+				});
+
+				condition.userId = { '$in': idList};
+				callback(error, users);
+			});
 		},
 		function addInstallationsCondtion(callback) {
 			if( options.where.installations === undefined || _.isEmpty(options.where.installations) ) { callback (null, null); }
@@ -131,13 +145,20 @@ function _doQuery(options, callback) {
 			store.get('mongodb').find( keys.collectionKey(InstallationsClass, options.applicationId), condition, callback );
 		}
 	], function done(error, results) {
-		// TODO error handling
-		if( error ) { return callback(error, results); }
+		if( error ) { return callback(error, []); }
+
 		callback( error, results[2] );
 	});
 };
 
 function _findPushSetting(appId, callback) {
 	// TODO Select Application Push Settings
-	callback(null, {mqtt: {}, apns:{}, gcm: {} });
+	callback(null, {
+		mqtt: {},
+		apns:{
+			gateway : "gateway.sandbox.push.apple.com",
+			certData: './keys/cert.pem',
+			keyData: './keys/key.pem'
+		},
+		gcm: {} });
 };
