@@ -40,6 +40,10 @@ PushManager.prototype.getApplication = function (appId, pushType, cb) {
 	_findPushSetting(appId, function(error, pushSettings) {
 		if( error ) { return cb(error, pushSettings); }
 
+		console.log(pushSettings);
+		console.log();
+
+
 		if( !app[appId] ) {
 			app[appId] = {};
 		}
@@ -153,12 +157,14 @@ function _doQuery(options, callback) {
 
 function _findPushSetting(appId, callback) {
 	// TODO Select Application Push Settings
-	callback(null, {
-		mqtt: {},
-		apns:{
-			gateway : "gateway.sandbox.push.apple.com",
-			certData: './keys/cert.pem',
-			keyData: './keys/key.pem'
-		},
-		gcm: {} });
+	//callback(null, {
+	//	mqtt: {},
+	//	apns:{
+	//		gateway : "gateway.sandbox.push.apple.com",
+	//		certData: './keys/cert.pem',
+	//		keyData: './keys/key.pem'
+	//	},
+	//	gcm: {} });
+
+	callback(null, config.pushSettings);
 };
