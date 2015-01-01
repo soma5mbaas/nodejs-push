@@ -39,10 +39,6 @@ PushManager.prototype.getApplication = function (appId, pushType, cb) {
 	_findPushSetting(appId, function(error, pushSettings) {
 		if( error ) { return cb(error, pushSettings); }
 
-		console.log(pushSettings);
-		console.log();
-
-
 		if( !app[appId] ) {
 			app[appId] = {};
 		}
@@ -134,11 +130,11 @@ function _doQuery(options, callback) {
 				});
 
 				condition.userId = { '$in': idList};
-				callback(error, users);
+				callback(error);
 			});
 		},
 		function addInstallationsCondtion(callback) {
-			if( options.where.installations === undefined || _.isEmpty(options.where.installations) ) { callback (null, null); }
+			if( options.where.installations === undefined || _.isEmpty(options.where.installations) ) { return callback (null, null); }
 
 			_.extend(condition, options.where.installations);
 
