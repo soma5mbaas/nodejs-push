@@ -22,6 +22,10 @@ function PushManager(settings) {
 	this.ttlInSeconds = this.settings.ttlInSeconds || 0;
 	this.checkPeriodInSeconds = this.settings.checkPeriodInSeconds || 0;
 	this.applicationsCache = new NodeCache({ stdTTL: this.ttlInSeconds, checkperiod: this.checkPeriodInSeconds });
+	this.deviceTypeToPusthType = {
+		android: 'mqtt',
+		ios: 'apns'
+	};
 };
 
 inherits( PushManager, EventEmitter );
@@ -97,8 +101,7 @@ PushManager.prototype.notify = function(installation, notification, cb) {
 
 	var appId = installation.applicationId;
 	var deviceToken = installation.deviceToken;
-	var pushType = installation.pushType;
-
+	var pushType = installation.pushType || this.deviceTypeToPusthType[installation.deviceType];
 
 	this.getApplication(
 		appId,
