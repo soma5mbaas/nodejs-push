@@ -14,7 +14,7 @@ inherits(MqttProvider, EventEmitter);
 
 MqttProvider.prototype._initPushConnection = function( settings ) {
 	var self = this;
-	settings.options = settings.options || {};
+	settings.options = settings.options || {qos:2, retain: true};
 	settings.port = settings.port || 80;
 	settings.host = settings.host || 'push.haru.io';
 	settings.reconnectPeriod = 100;
