@@ -2,8 +2,7 @@
  * Created by syntaxfish on 14. 11. 6..
  */
 var amqp = require('amqplib/callback_api');
-var queue = require('./config').mqueue.push;
-var config = require('./config');
+var queue = config.mqueue.push;
 var store = require('haru-nodejs-store');
 
 var push = require('./handlers/push');

@@ -6,7 +6,6 @@ var inherits = require('util').inherits;
 var NodeCache = require('node-cache');
 var isEmptyObject = require('haru-nodejs-util').common.isEmptyObject;
 var Providers = require('../providers');
-var config = require('../config');
 
 var keys = require('haru-nodejs-util').keys;
 var store = require('haru-nodejs-store');
